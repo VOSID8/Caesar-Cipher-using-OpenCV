@@ -1,8 +1,11 @@
 import cv2
 import numpy as np
+import urllib.request
 
 faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 cap = cv2.VideoCapture(0)
+#im = Image.open(requests.get("https://visionofsid.files.wordpress.com/2022/01/1.png?w=150", stream=True).raw)
+#im.show()
 
 def stackImages(scale,imgArray):
     rows = len(imgArray)
@@ -38,9 +41,15 @@ text=input("Enter the text to encrypt: ")
 while True:
     _, img = cap.read()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    whitebg=cv2.imread("white.jpg")
-    blackbg=cv2.imread("blackbg.jpg")
-    credit = cv2.imread("credit.png")
+    whitebg = urllib.request.urlopen("https://visionofsid.files.wordpress.com/2022/01/white.jpg?w=200&zoom=2")
+    array= np.array(bytearray(whitebg.read()), dtype=np.uint8)
+    Im1 = cv2.imdecode(array, -1)
+    blackbg = urllib.request.urlopen("https://visionofsid.files.wordpress.com/2022/01/blackbg.jpg?w=200&zoom=2")
+    array= np.array(bytearray(blackbg.read()), dtype=np.uint8)
+    Im2 = cv2.imdecode(array, -1)
+    credit = urllib.request.urlopen("https://visionofsid.files.wordpress.com/2022/01/1.png?w=300")
+    array= np.array(bytearray(credit.read()), dtype=np.uint8)
+    Im3 = cv2.imdecode(array, -1)
     faces = faceCascade.detectMultiScale(gray, 1.1, 4)
     xen=len(faces)
     lmao=str(xen)
@@ -53,14 +62,18 @@ while True:
             result += chr((ord(char) + xen - 65) % 26 + 65)
         else:
             result += chr((ord(char) + xen - 97) % 26 + 97)
-    cv2.putText(whitebg,"Original: ",(0,60),cv2.FONT_HERSHEY_COMPLEX,2,(0,0,255),3)
-    cv2.putText(whitebg,text,(0,120),cv2.FONT_HERSHEY_COMPLEX,2,(0,0,255),3)
-    cv2.putText(whitebg,"Cipher text:",(0,260), cv2.FONT_HERSHEY_COMPLEX, 2, (0, 150, 0), 3)
-    cv2.putText(whitebg,result, (0,320), cv2.FONT_HERSHEY_COMPLEX, 2, (0, 150, 0),3)
-    cv2.putText(blackbg,"Number of faces: ", (0,200),cv2.FONT_HERSHEY_COMPLEX, 2, (177, 128, 19), 3)
-    cv2.putText(blackbg,lmao, (0,250),cv2.FONT_HERSHEY_COMPLEX, 2, (177, 128, 19), 3)
-    imgstack=stackImages(0.6,([credit,whitebg],[img,blackbg]))
+    creditt = cv2.resize(Im3, (500, 500))
+    whitebgg = cv2.resize(Im1, (500, 500))
+    blackbgg = cv2.resize(Im2, (500, 500))
+    cv2.putText(whitebgg,"Original: ",(0,60),cv2.FONT_HERSHEY_COMPLEX,2,(0,0,255),3)
+    cv2.putText(whitebgg,text,(0,120),cv2.FONT_HERSHEY_COMPLEX,2,(0,0,255),3)
+    cv2.putText(whitebgg,"Cipher text:",(0,260), cv2.FONT_HERSHEY_COMPLEX, 2, (0, 150, 0), 3)
+    cv2.putText(whitebgg,result, (0,320), cv2.FONT_HERSHEY_COMPLEX, 2, (0, 150, 0),3)
+    cv2.putText(blackbgg,"Number of faces: ", (0,200),cv2.FONT_HERSHEY_COMPLEX, 2, (177, 128, 19), 3)
+    cv2.putText(blackbgg,lmao, (0,250),cv2.FONT_HERSHEY_COMPLEX, 2, (177, 128, 19), 3)
+    imgstack=stackImages(0.6,([creditt,whitebgg],[img,blackbgg]))
     cv2.imshow('img', imgstack)
     if cv2.waitKey(1) & 0xff==ord("a"):
         break
 cap.release()
+
